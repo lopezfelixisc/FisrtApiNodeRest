@@ -21,8 +21,8 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
-app.use(require('./routes/usuario'));
+//Configuración global de rutas
+app.use(require('./routes/index'));
 
 //conexion a mongodb
 const mongoose = require('mongoose');

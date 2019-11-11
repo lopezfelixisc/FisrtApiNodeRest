@@ -2,9 +2,11 @@ const express = require('express');
 const Usuario = require('../models/usuario');
 const bCrypt = require('bcrypt');
 const _ = require('underscore');
+const { verificaToken, verificaAdminRole } = require('../middlewares/authentication');
+
 const app = express();
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', verificaToken, function(req, res) {
     Usuario.find({ estado: true }, 'nombre estado role email google img') // excluir campos del schema mongo
         .skip(Number(req.query.desde || 0))
         .limit(Number(req.query.limete || 10))
@@ -28,12 +30,7 @@ app.get('/usuario', function(req, res) {
         });
 })
 
-app.get('/usuario:id', function(req, res) {
-    let id = req.params.id;
-    res.json(id);
-})
-
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificaToken, verificaAdminRole], function(req, res) {
     let usuario = new Usuario(req.body);
     usuario.password = bCrypt.hashSync(usuario.password, 10);
     usuario.save((err, UsuarioDB) => {
@@ -52,7 +49,7 @@ app.post('/usuario', function(req, res) {
     })
 })
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdminRole], function(req, res) {
     let id = req.params.id;
     let body = _.pick(req.body, [
         'nombre',
@@ -76,7 +73,7 @@ app.put('/usuario/:id', function(req, res) {
     })
 })
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', verificaToken, function(req, res) {
     let id = req.params.id;
     //Eliminar de la coleccion
 
